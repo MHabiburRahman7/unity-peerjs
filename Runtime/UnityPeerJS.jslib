@@ -26,9 +26,18 @@ else if(c==ArrayBuffer)this.pack_bin(h.useArrayBufferView?new Uint8Array(a):a);e
 
     OpenPeer: function (key, id, host, port) {
         
-        var keystr = Pointer_stringify(key);
-        var idstr = Pointer_stringify(id);
-        var hoststr = Pointer_stringify(host);
+        var keystr = UTF8ToString(key);
+        var idstr = UTF8ToString(id);
+        var hoststr = UTF8ToString(host);
+
+        /*
+        var peer = {
+            peer: new Peer({ key: keystr, debug: 2}),
+            initialized: false,
+            conns: [],
+            events: [],
+        };
+        */
 
         var peer = {
             peer: new Peer(idstr, { key: keystr, debug: 2, host: hoststr, port: port}),
@@ -91,7 +100,7 @@ else if(c==ArrayBuffer)this.pack_bin(h.useArrayBufferView?new Uint8Array(a):a);e
 
     Connect: function (peerInstance, id) {
         
-        var idstr = Pointer_stringify(id);
+        var idstr = UTF8ToString(id);
         var peer = UnityPeerJS.peers[peerInstance];
         
         console.log('connecting to', idstr);
@@ -103,7 +112,7 @@ else if(c==ArrayBuffer)this.pack_bin(h.useArrayBufferView?new Uint8Array(a):a);e
 
         var peer = UnityPeerJS.peers[peerInstance];
         var conn = peer.conns[connInstance];
-        var datastr = Pointer_stringify(data);
+        var datastr = UTF8ToString(data);
 
         console.log('sending data', length);
 
@@ -162,8 +171,21 @@ else if(c==ArrayBuffer)this.pack_bin(h.useArrayBufferView?new Uint8Array(a):a);e
         
         console.log("conntected", ev.id);
         
-        // @todo:
-        writeStringToMemory(ev.id, remoteIdPtr);
+        // // @todo:
+        // writeStringToMemory(ev.id, remoteIdPtr);
+
+        // Manually write the string to memory (in case writeStringToMemory is unavailable)
+        var memory = Module.HEAPU8; // The memory buffer
+        var str = ev.id;
+        var strLen = Math.min(str.length, remoteIdMaxLength - 1); // Ensure we don't exceed the max length
+        
+        // Copy the string into the memory buffer
+        for (var i = 0; i < strLen; i++) {
+            memory[remoteIdPtr + i] = str.charCodeAt(i);
+        }
+
+        // Null-terminate the string (as C strings are null-terminated)
+        memory[remoteIdPtr + strLen] = 0;
 
         return ev.conn;
     },
@@ -203,8 +225,21 @@ else if(c==ArrayBuffer)this.pack_bin(h.useArrayBufferView?new Uint8Array(a):a);e
             return ev.conn;
         }
         
-        // @todo:
-        writeStringToMemory(ev.data, dataPtr);
+        // // @todo:
+        // writeStringToMemory(ev.id, dataPtr);
+
+        // Manually write the string to memory (in case writeStringToMemory is unavailable)
+        var memory = Module.HEAPU8; // The memory buffer
+        var str = ev.id;
+        var strLen = Math.min(str.length, dataMaxLength - 1); // Ensure we don't exceed the max length
+        
+        // Copy the string into the memory buffer
+        for (var i = 0; i < strLen; i++) {
+            memory[dataPtr + i] = str.charCodeAt(i);
+        }
+
+        // Null-terminate the string (as C strings are null-terminated)
+        memory[dataPtr + strLen] = 0;
 
         return ev.conn;
     },
@@ -236,8 +271,20 @@ else if(c==ArrayBuffer)this.pack_bin(h.useArrayBufferView?new Uint8Array(a):a);e
 
         var str = ev.err.slice(0, Math.max(0, errorMaxLength / 2 - 1));
 
-        // @todo:        
-        writeStringToMemory(str, errorPtr);
+        // // @todo:
+        // writeStringToMemory(ev.id, errorPtr);
+
+        // Manually write the string to memory (in case writeStringToMemory is unavailable)
+        var memory = Module.HEAPU8; // The memory buffer
+        var strLen = Math.min(str.length, errorMaxLength - 1); // Ensure we don't exceed the max length
+        
+        // Copy the string into the memory buffer
+        for (var i = 0; i < strLen; i++) {
+            memory[errorPtr + i] = str.charCodeAt(i);
+        }
+
+        // Null-terminate the string (as C strings are null-terminated)
+        memory[errorPtr + strLen] = 0;
     },
 };
 
