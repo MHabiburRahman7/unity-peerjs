@@ -1,0 +1,21 @@
+{
+  "name": "com.ramon171.unitypeerjs",
+  "version": "0.0.1",
+  "displayName": "Unity Peer JS",
+  "description": "Peer JS library for webgl P2P",
+  "unity": "2019.1",
+  "unityRelease": "0b5",
+  "documentationUrl": "https://github.com/MHabiburRahman7/unity-peerjs/blob/master/README.md",
+  "changelogUrl": "https://example.com/changelog.html",
+  "licensesUrl": "https://github.com/MHabiburRahman7/unity-peerjs/blob/master/LICENSE",
+	 "keywords": [
+		"peerJS",
+		"webgl",
+		"p2p",
+		"peer to peer"
+	  ],
+	  "author": {
+		"name": "Ramon",
+		"email": "george_the@ymail.com"
+	  }
+}
